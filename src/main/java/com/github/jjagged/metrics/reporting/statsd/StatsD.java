@@ -125,7 +125,7 @@ public class StatsD implements Closeable {
         }
 
         try {
-            String formatted = String.format("%s:%s|g%s", sanitize(finalName), sanitize(value), buildTags(tags));
+            String formatted = String.format("%s:%s|g%s", sanitize(finalName), sanitize(value), buildTags(finalTags));
             byte[] bytes = formatted.getBytes(UTF_8);
             socket.send(socketFactory.createPacket(bytes, bytes.length, address));
             failures = 0;
@@ -163,14 +163,14 @@ public class StatsD implements Closeable {
         return WHITESPACE.matcher(s).replaceAll("-");
     }
 
-    private String buildTags(@Nullable final String[] tags) {
-        if (tags == null || tags.length == 0) {
+    private String buildTags(@Nullable final List<String> tags) {
+        if (tags == null || tags.size() == 0) {
             return "";
         }
         StringBuilder sb = new StringBuilder("|#");
-        for (int i = 0; i < tags.length; i++) {
-            sb.append(tags[i]);
-            if (i < tags.length - 1) {
+        for (int i = 0; i < tags.size(); i++) {
+            sb.append(tags.get(i));
+            if (i < tags.size() - 1) {
                 sb.append(",");
             }
         }

@@ -107,18 +107,45 @@ public class StatsDTest {
     }
 
     @Test
+    public void findsTags() throws Exception {
+        statsD.connect();
+        statsD.send("name[foo=bar]", "value", null);
+
+        assertThat(new String(bytesCaptor.getValue()))
+                .isEqualTo("name:value|g|#foo=bar");
+    }
+
+    @Test
+    public void findsMultipleTags() throws Exception {
+        statsD.connect();
+        statsD.send("name[foo=bar,gorch,plorp]", "value", null);
+
+        assertThat(new String(bytesCaptor.getValue()))
+                .isEqualTo("name:value|g|#foo=bar,gorch,plorp");
+    }
+
+    @Test
+    public void findsAndSantizesTags() throws Exception {
+        statsD.connect();
+        statsD.send("name[foo=bar,go rch,plorp]", "value", null);
+
+        assertThat(new String(bytesCaptor.getValue()))
+                .isEqualTo("name:value|g|#foo=bar,go-rch,plorp");
+    }
+
+    @Test
     public void address() throws IOException {
         statsD.connect();
         statsD.send("name", "value", null);
 
         assertThat(addressCaptor.getValue()).isEqualTo(address);
     }
-    
+
     @Test
     public void testTags() throws Exception {
         statsD.connect();
         statsD.send("name", "value", new String[] {"my", "tags"});
-        
+
         assertThat(new String(bytesCaptor.getValue())).isEqualTo(
                 "name:value|g|#my,tags");
     }
