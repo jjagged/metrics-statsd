@@ -25,6 +25,10 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
+import java.util.Arrays;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 /**
@@ -37,6 +41,8 @@ public class StatsD implements Closeable {
 
     private static final Pattern WHITESPACE = Pattern.compile("[\\s]+");
 
+    private static final Pattern TAGPATTERN = Pattern.compile("(.*)\\[(.*)\\]");
+
     private static final Charset UTF_8 = Charset.forName("UTF-8");
 
     private final DatagramSocketFactory socketFactory;
@@ -48,7 +54,7 @@ public class StatsD implements Closeable {
     /**
      * Creates a new client which connects to the given address using the
      * default {@link DatagramSocketFactory}.
-     * 
+     *
      * @param host
      *            the hostname of the StatsD server.
      * @param port
@@ -61,7 +67,7 @@ public class StatsD implements Closeable {
     /**
      * Creates a new client which connects to the given address and socket
      * factory.
-     * 
+     *
      * @param address
      *            the address of the StatsD server
      * @param socketFactory
@@ -76,7 +82,7 @@ public class StatsD implements Closeable {
      * Resolves the address hostname if present.
      * <p/>
      * Creates a datagram socket through the factory.
-     * 
+     *
      * @throws IllegalStateException
      *             if the client is already connected
      * @throws IOException
@@ -96,7 +102,7 @@ public class StatsD implements Closeable {
 
     /**
      * Sends the given measurement to the server. Logs exceptions.
-     * 
+     *
      * @param name
      *            the name of the metric
      * @param value
@@ -104,8 +110,22 @@ public class StatsD implements Closeable {
      */
     public void send(final String name, final String value, @Nullable final String[] tags) {
 
+        List<String> finalTags = new ArrayList<String>();
+        if(tags != null) {
+            finalTags.addAll(Arrays.asList(tags));
+        }
+
+        Matcher matcher = TAGPATTERN.matcher(name);
+
+        String finalName = name;
+        if (matcher.find() && matcher.groupCount() == 2) {
+            // We've got a tag in the name, so lets pull it out
+            finalName = matcher.group(1); // Get the name with no tags
+            finalTags.addAll(Arrays.asList(sanitize(matcher.group(2)).split(",")));
+        }
+
         try {
-            String formatted = String.format("%s:%s|g%s", sanitize(name), sanitize(value), buildTags(tags));
+            String formatted = String.format("%s:%s|g%s", sanitize(finalName), sanitize(value), buildTags(finalTags));
             byte[] bytes = formatted.getBytes(UTF_8);
             socket.send(socketFactory.createPacket(bytes, bytes.length, address));
             failures = 0;
@@ -124,7 +144,7 @@ public class StatsD implements Closeable {
 
     /**
      * Returns the number of failed writes to the server.
-     * 
+     *
      * @return the number of failed writes to the server
      */
     public int getFailures() {
@@ -143,14 +163,14 @@ public class StatsD implements Closeable {
         return WHITESPACE.matcher(s).replaceAll("-");
     }
 
-    private String buildTags(@Nullable final String[] tags) {
-        if (tags == null || tags.length == 0) {
+    private String buildTags(@Nullable final List<String> tags) {
+        if (tags == null || tags.size() == 0) {
             return "";
         }
         StringBuilder sb = new StringBuilder("|#");
-        for (int i = 0; i < tags.length; i++) {
-            sb.append(tags[i]);
-            if (i < tags.length - 1) {
+        for (int i = 0; i < tags.size(); i++) {
+            sb.append(tags.get(i));
+            if (i < tags.size() - 1) {
                 sb.append(",");
             }
         }
