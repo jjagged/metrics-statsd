@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.jjagged.metrics.reporting;
+package com.basistech.metrics.reporting;
 
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.mockito.InOrder;
 
-import com.github.jjagged.metrics.reporting.statsd.StatsD;
+import com.basistech.metrics.reporting.statsd.StatsD;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;

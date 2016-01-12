@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.jjagged.metrics.reporting.statsd;
+package com.basistech.metrics.reporting.statsd;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +25,6 @@ import java.io.IOException;
 import java.net.DatagramSocket;
 import java.net.InetSocketAddress;
 import java.nio.charset.Charset;
-import java.util.concurrent.TimeUnit;
 import java.util.regex.Pattern;
 
 /**
