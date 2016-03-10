@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.jjagged.metrics.reporting;
+package com.basistech.metrics.reporting;
 
 import static org.mockito.Mockito.inOrder;
 import static org.mockito.Mockito.mock;
@@ -30,7 +30,7 @@ import java.util.concurrent.TimeUnit;
 import org.junit.Test;
 import org.mockito.InOrder;
 
-import com.github.jjagged.metrics.reporting.statsd.StatsD;
+import com.basistech.metrics.reporting.statsd.StatsD;
 import com.codahale.metrics.Counter;
 import com.codahale.metrics.Gauge;
 import com.codahale.metrics.Histogram;
@@ -63,7 +63,7 @@ public class StatsDReporterTest {
 
         final InOrder inOrder = inOrder(statsD);
         inOrder.verify(statsD).connect();
-        inOrder.verify(statsD, never()).send("prefix.gauge", "value", tags);
+        inOrder.verify(statsD, never()).sendGauge("prefix.gauge", "value", tags);
         inOrder.verify(statsD).close();
     }
 
@@ -74,7 +74,7 @@ public class StatsDReporterTest {
 
         final InOrder inOrder = inOrder(statsD);
         inOrder.verify(statsD).connect();
-        inOrder.verify(statsD).send("prefix.gauge", "1", tags);
+        inOrder.verify(statsD).sendGauge("prefix.gauge", "1", tags);
         inOrder.verify(statsD).close();
     }
 
@@ -85,7 +85,7 @@ public class StatsDReporterTest {
 
         final InOrder inOrder = inOrder(statsD);
         inOrder.verify(statsD).connect();
-        inOrder.verify(statsD).send("prefix.gauge", "1", tags);
+        inOrder.verify(statsD).sendGauge("prefix.gauge", "1", tags);
         inOrder.verify(statsD).close();
     }
 
@@ -96,7 +96,7 @@ public class StatsDReporterTest {
 
         final InOrder inOrder = inOrder(statsD);
         inOrder.verify(statsD).connect();
-        inOrder.verify(statsD).send("prefix.gauge", "1", tags);
+        inOrder.verify(statsD).sendGauge("prefix.gauge", "1", tags);
         inOrder.verify(statsD).close();
     }
 
@@ -107,7 +107,7 @@ public class StatsDReporterTest {
 
         final InOrder inOrder = inOrder(statsD);
         inOrder.verify(statsD).connect();
-        inOrder.verify(statsD).send("prefix.gauge", "1", tags);
+        inOrder.verify(statsD).sendGauge("prefix.gauge", "1", tags);
         inOrder.verify(statsD).close();
     }
 
@@ -118,7 +118,7 @@ public class StatsDReporterTest {
 
         final InOrder inOrder = inOrder(statsD);
         inOrder.verify(statsD).connect();
-        inOrder.verify(statsD).send("prefix.gauge", "1.10", tags);
+        inOrder.verify(statsD).sendGauge("prefix.gauge", "1.10", tags);
         inOrder.verify(statsD).close();
     }
 
@@ -129,7 +129,7 @@ public class StatsDReporterTest {
 
         final InOrder inOrder = inOrder(statsD);
         inOrder.verify(statsD).connect();
-        inOrder.verify(statsD).send("prefix.gauge", "1.10", tags);
+        inOrder.verify(statsD).sendGauge("prefix.gauge", "1.10", tags);
         inOrder.verify(statsD).close();
     }
 
@@ -140,7 +140,7 @@ public class StatsDReporterTest {
 
         final InOrder inOrder = inOrder(statsD);
         inOrder.verify(statsD).connect();
-        inOrder.verify(statsD).send("prefix.gauge", "1", tags);
+        inOrder.verify(statsD).sendGauge("prefix.gauge", "1", tags);
         inOrder.verify(statsD).close();        
     }
 
@@ -151,7 +151,7 @@ public class StatsDReporterTest {
 
         final InOrder inOrder = inOrder(statsD);
         inOrder.verify(statsD).connect();
-        inOrder.verify(statsD).send("prefix.gauge", "1.10", tags);
+        inOrder.verify(statsD).sendGauge("prefix.gauge", "1.10", tags);
         inOrder.verify(statsD).close();        
     }
 
@@ -165,7 +165,7 @@ public class StatsDReporterTest {
 
         final InOrder inOrder = inOrder(statsD);
         inOrder.verify(statsD).connect();
-        inOrder.verify(statsD).send("prefix.counter", "100", tags);
+        inOrder.verify(statsD).sendGauge("prefix.counter", "100", tags);
         inOrder.verify(statsD).close();
     }
 
@@ -195,18 +195,55 @@ public class StatsDReporterTest {
         final InOrder inOrder = inOrder(statsD);
 
         inOrder.verify(statsD).connect();
-        verify(statsD).send("prefix.histogram.count", "1", tags);
-        verify(statsD).send("prefix.histogram.max", "2", tags);
-        verify(statsD).send("prefix.histogram.mean", "3.00", tags);
-        verify(statsD).send("prefix.histogram.min", "4", tags);
-        verify(statsD).send("prefix.histogram.stddev", "5.00", tags);
-        verify(statsD).send("prefix.histogram.p50", "6.00", tags);
-        verify(statsD).send("prefix.histogram.p75", "7.00", tags);
-        verify(statsD).send("prefix.histogram.p95", "8.00", tags);
-        verify(statsD).send("prefix.histogram.p98", "9.00", tags);
-        verify(statsD).send("prefix.histogram.p99", "10.00", tags);
-        inOrder.verify(statsD).send("prefix.histogram.p999", "11.00", tags);
+        verify(statsD).sendGauge("prefix.histogram.count", "1", tags);
+        verify(statsD).sendGauge("prefix.histogram.max", "2", tags);
+        verify(statsD).sendGauge("prefix.histogram.mean", "3.00", tags);
+        verify(statsD).sendGauge("prefix.histogram.min", "4", tags);
+        verify(statsD).sendGauge("prefix.histogram.stddev", "5.00", tags);
+        verify(statsD).sendGauge("prefix.histogram.p50", "6.00", tags);
+        verify(statsD).sendGauge("prefix.histogram.p75", "7.00", tags);
+        verify(statsD).sendGauge("prefix.histogram.p95", "8.00", tags);
+        verify(statsD).sendGauge("prefix.histogram.p98", "9.00", tags);
+        verify(statsD).sendGauge("prefix.histogram.p99", "10.00", tags);
+        inOrder.verify(statsD).sendGauge("prefix.histogram.p999", "11.00", tags);
 
+        inOrder.verify(statsD).close();
+    }
+
+    @Test
+    public void reportsHistogramsConverted() throws Exception {
+        StatsDReporter convertingReporter = StatsDReporter
+                .forRegistry(registry)
+                .convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS).filter(MetricFilter.ALL)
+                .convertToCounters(true)
+                .build(statsD);
+
+        final Histogram histogram = mock(Histogram.class);
+        when(histogram.getCount()).thenReturn(1L);
+
+        final Snapshot snapshot = mock(Snapshot.class);
+        when(snapshot.getMax()).thenReturn(2L);
+        when(snapshot.getMean()).thenReturn(3.0);
+        when(snapshot.getMin()).thenReturn(4L);
+        when(snapshot.getStdDev()).thenReturn(5.0);
+        when(snapshot.getMedian()).thenReturn(6.0);
+        when(snapshot.get75thPercentile()).thenReturn(7.0);
+        when(snapshot.get95thPercentile()).thenReturn(8.0);
+        when(snapshot.get98thPercentile()).thenReturn(9.0);
+        when(snapshot.get99thPercentile()).thenReturn(10.0);
+        when(snapshot.get999thPercentile()).thenReturn(11.0);
+
+        when(histogram.getSnapshot()).thenReturn(snapshot);
+
+        convertingReporter.report(emptyGaugeMap, this.<Counter> map(),
+                this.<Histogram> map("histogram", histogram),
+                this.<Meter> map(), this.<Timer> map());
+
+        final InOrder inOrder = inOrder(statsD);
+
+        inOrder.verify(statsD).connect();
+        inOrder.verify(statsD).sendCounter("histogram.count", 1, null, null);
         inOrder.verify(statsD).close();
     }
 
@@ -225,11 +262,39 @@ public class StatsDReporterTest {
 
         final InOrder inOrder = inOrder(statsD);
         inOrder.verify(statsD).connect();
-        verify(statsD).send("prefix.meter.count", "1", tags);
-        verify(statsD).send("prefix.meter.m1_rate", "2.00", tags);
-        verify(statsD).send("prefix.meter.m5_rate", "3.00", tags);
-        verify(statsD).send("prefix.meter.m15_rate", "4.00", tags);
-        inOrder.verify(statsD).send("prefix.meter.mean_rate", "5.00", tags);
+        verify(statsD).sendGauge("prefix.meter.count", "1", tags);
+        verify(statsD).sendGauge("prefix.meter.m1_rate", "2.00", tags);
+        verify(statsD).sendGauge("prefix.meter.m5_rate", "3.00", tags);
+        verify(statsD).sendGauge("prefix.meter.m15_rate", "4.00", tags);
+        inOrder.verify(statsD).sendGauge("prefix.meter.mean_rate", "5.00", tags);
+        inOrder.verify(statsD).close();
+
+    }
+
+    @Test
+    public void reportsMetersConverted() throws Exception {
+
+        StatsDReporter convertingReporter = StatsDReporter
+                .forRegistry(registry)
+                .convertRatesTo(TimeUnit.SECONDS)
+                .convertDurationsTo(TimeUnit.MILLISECONDS).filter(MetricFilter.ALL)
+                .convertToCounters(true)
+                .build(statsD);
+
+        final Meter meter = mock(Meter.class);
+        when(meter.getCount()).thenReturn(1L);
+        when(meter.getOneMinuteRate()).thenReturn(2.0);
+        when(meter.getFiveMinuteRate()).thenReturn(3.0);
+        when(meter.getFifteenMinuteRate()).thenReturn(4.0);
+        when(meter.getMeanRate()).thenReturn(5.0);
+
+        convertingReporter.report(emptyGaugeMap, this.<Counter> map(),
+                this.<Histogram> map(), this.<Meter> map("meter", meter),
+                this.<Timer> map());
+
+        final InOrder inOrder = inOrder(statsD);
+        inOrder.verify(statsD).connect();
+        inOrder.verify(statsD).sendCounter("meter.count", 1, null, null);
         inOrder.verify(statsD).close();
 
     }
@@ -270,21 +335,21 @@ public class StatsDReporterTest {
 
         final InOrder inOrder = inOrder(statsD);
         inOrder.verify(statsD).connect();
-        verify(statsD).send("prefix.timer.max", "100.00", tags);
-        verify(statsD).send("prefix.timer.mean", "200.00", tags);
-        verify(statsD).send("prefix.timer.min", "300.00", tags);
-        verify(statsD).send("prefix.timer.stddev", "400.00", tags);
-        verify(statsD).send("prefix.timer.p50", "500.00", tags);
-        verify(statsD).send("prefix.timer.p75", "600.00", tags);
-        verify(statsD).send("prefix.timer.p95", "700.00", tags);
-        verify(statsD).send("prefix.timer.p98", "800.00", tags);
-        verify(statsD).send("prefix.timer.p99", "900.00", tags);
-        verify(statsD).send("prefix.timer.p999", "1000.00", tags);
-        verify(statsD).send("prefix.timer.count", "1", tags);
-        verify(statsD).send("prefix.timer.m1_rate", "3.00", tags);
-        verify(statsD).send("prefix.timer.m5_rate", "4.00", tags);
-        verify(statsD).send("prefix.timer.m15_rate", "5.00", tags);
-        inOrder.verify(statsD).send("prefix.timer.mean_rate", "2.00", tags);
+        verify(statsD).sendGauge("prefix.timer.max", "100.00", tags);
+        verify(statsD).sendGauge("prefix.timer.mean", "200.00", tags);
+        verify(statsD).sendGauge("prefix.timer.min", "300.00", tags);
+        verify(statsD).sendGauge("prefix.timer.stddev", "400.00", tags);
+        verify(statsD).sendGauge("prefix.timer.p50", "500.00", tags);
+        verify(statsD).sendGauge("prefix.timer.p75", "600.00", tags);
+        verify(statsD).sendGauge("prefix.timer.p95", "700.00", tags);
+        verify(statsD).sendGauge("prefix.timer.p98", "800.00", tags);
+        verify(statsD).sendGauge("prefix.timer.p99", "900.00", tags);
+        verify(statsD).sendGauge("prefix.timer.p999", "1000.00", tags);
+        verify(statsD).sendGauge("prefix.timer.count", "1", tags);
+        verify(statsD).sendGauge("prefix.timer.m1_rate", "3.00", tags);
+        verify(statsD).sendGauge("prefix.timer.m5_rate", "4.00", tags);
+        verify(statsD).sendGauge("prefix.timer.m15_rate", "5.00", tags);
+        inOrder.verify(statsD).sendGauge("prefix.timer.mean_rate", "2.00", tags);
         inOrder.verify(statsD).close();
     }
 

@@ -13,7 +13,7 @@
  *   See the License for the specific language governing permissions and
  *   limitations under the License.
  */
-package com.github.jjagged.metrics.reporting.statsd;
+package com.basistech.metrics.reporting.statsd;
 
 import org.junit.Test;
 
